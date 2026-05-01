@@ -1,0 +1,37 @@
+edition = "2024";
+
+package message;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "./service";
+
+// Message - сообщение.
+message Message {
+  // ID сообщения.
+  int32 id = 1;
+  // Тип сообщения.
+  MessageType type = 2 [default = MESSAGE_TYPE_INFO];
+  // Заголовок сообщения.
+  string title = 3 [default = "no title"];
+  // Теги сообщения.
+  repeated string tags = 4;
+  // Данные сообщения.
+  bytes data = 5;
+  // Опция конца потока сообщений.
+  oneof end {
+    // Флаг последнего сообщения.
+    bool is_last = 6;
+    // Количество оставшихся сообщений.
+    int32 count_more = 7;
+  }
+  // Время отправки сообщения.
+  google.protobuf.Timestamp sent_at = 8;
+}
+
+// MessageType - тип сообщения.
+enum MessageType {
+  MESSAGE_TYPE_UNSPECIFIED = 0;                       // Тип не задан.
+  MESSAGE_TYPE_ALERT = 1;                             // Предупреждающее сообщение.
+  MESSAGE_TYPE_INFO = 2;                              // Информационное сообщение.
+}
