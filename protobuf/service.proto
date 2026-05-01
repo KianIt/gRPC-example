@@ -11,4 +11,6 @@ option go_package = "./service";
 service Service {
   // ProcessMessage обрабатывает сообщение.
   rpc ProcessMessage(message.Message) returns (google.protobuf.Empty);
+  // ProcessMessageStream обрабатывает поток сообщений.
+  rpc ProcessMessageStream(stream message.Message) returns (google.protobuf.Empty);
 }

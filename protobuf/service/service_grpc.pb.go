@@ -20,7 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Service_ProcessMessage_FullMethodName = "/service.Service/ProcessMessage"
+	Service_ProcessMessage_FullMethodName       = "/service.Service/ProcessMessage"
+	Service_ProcessMessageStream_FullMethodName = "/service.Service/ProcessMessageStream"
 )
 
 // ServiceClient is the client API for Service service.
@@ -31,6 +32,8 @@ const (
 type ServiceClient interface {
 	// ProcessMessage обрабатывает сообщение.
 	ProcessMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// ProcessMessageStream обрабатывает поток сообщений.
+	ProcessMessageStream(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[Message, emptypb.Empty], error)
 }
 
 type serviceClient struct {
@@ -51,6 +54,19 @@ func (c *serviceClient) ProcessMessage(ctx context.Context, in *Message, opts ..
 	return out, nil
 }
 
+func (c *serviceClient) ProcessMessageStream(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[Message, emptypb.Empty], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &Service_ServiceDesc.Streams[0], Service_ProcessMessageStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[Message, emptypb.Empty]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Service_ProcessMessageStreamClient = grpc.ClientStreamingClient[Message, emptypb.Empty]
+
 // ServiceServer is the server API for Service service.
 // All implementations must embed UnimplementedServiceServer
 // for forward compatibility.
@@ -59,6 +75,8 @@ func (c *serviceClient) ProcessMessage(ctx context.Context, in *Message, opts ..
 type ServiceServer interface {
 	// ProcessMessage обрабатывает сообщение.
 	ProcessMessage(context.Context, *Message) (*emptypb.Empty, error)
+	// ProcessMessageStream обрабатывает поток сообщений.
+	ProcessMessageStream(grpc.ClientStreamingServer[Message, emptypb.Empty]) error
 	mustEmbedUnimplementedServiceServer()
 }
 
@@ -71,6 +89,9 @@ type UnimplementedServiceServer struct{}
 
 func (UnimplementedServiceServer) ProcessMessage(context.Context, *Message) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method ProcessMessage not implemented")
+}
+func (UnimplementedServiceServer) ProcessMessageStream(grpc.ClientStreamingServer[Message, emptypb.Empty]) error {
+	return status.Error(codes.Unimplemented, "method ProcessMessageStream not implemented")
 }
 func (UnimplementedServiceServer) mustEmbedUnimplementedServiceServer() {}
 func (UnimplementedServiceServer) testEmbeddedByValue()                 {}
@@ -111,6 +132,13 @@ func _Service_ProcessMessage_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Service_ProcessMessageStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ServiceServer).ProcessMessageStream(&grpc.GenericServerStream[Message, emptypb.Empty]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Service_ProcessMessageStreamServer = grpc.ClientStreamingServer[Message, emptypb.Empty]
+
 // Service_ServiceDesc is the grpc.ServiceDesc for Service service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -123,6 +151,12 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Service_ProcessMessage_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "ProcessMessageStream",
+			Handler:       _Service_ProcessMessageStream_Handler,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "service.proto",
 }

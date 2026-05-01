@@ -25,9 +25,10 @@ var File_service_proto protoreflect.FileDescriptor
 
 const file_service_proto_rawDesc = "" +
 	"\n" +
-	"\rservice.proto\x12\aservice\x1a\x1bgoogle/protobuf/empty.proto\x1a\rmessage.proto2E\n" +
+	"\rservice.proto\x12\aservice\x1a\x1bgoogle/protobuf/empty.proto\x1a\rmessage.proto2\x89\x01\n" +
 	"\aService\x12:\n" +
-	"\x0eProcessMessage\x12\x10.message.Message\x1a\x16.google.protobuf.EmptyB\vZ\t./serviceb\beditionsp\xe9\a"
+	"\x0eProcessMessage\x12\x10.message.Message\x1a\x16.google.protobuf.Empty\x12B\n" +
+	"\x14ProcessMessageStream\x12\x10.message.Message\x1a\x16.google.protobuf.Empty(\x01B\vZ\t./serviceb\beditionsp\xe9\a"
 
 var file_service_proto_goTypes = []any{
 	(*Message)(nil),       // 0: message.Message
@@ -35,9 +36,11 @@ var file_service_proto_goTypes = []any{
 }
 var file_service_proto_depIdxs = []int32{
 	0, // 0: service.Service.ProcessMessage:input_type -> message.Message
-	1, // 1: service.Service.ProcessMessage:output_type -> google.protobuf.Empty
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	0, // 1: service.Service.ProcessMessageStream:input_type -> message.Message
+	1, // 2: service.Service.ProcessMessage:output_type -> google.protobuf.Empty
+	1, // 3: service.Service.ProcessMessageStream:output_type -> google.protobuf.Empty
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
