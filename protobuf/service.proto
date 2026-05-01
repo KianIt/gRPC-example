@@ -1,0 +1,14 @@
+edition = "2024";
+
+package service;
+
+import "google/protobuf/empty.proto";
+import "message.proto";
+
+option go_package = "./service";
+
+// Service - сервис обработки сообщений.
+service Service {
+  // ProcessMessage обрабатывает сообщение.
+  rpc ProcessMessage(message.Message) returns (google.protobuf.Empty);
+}
