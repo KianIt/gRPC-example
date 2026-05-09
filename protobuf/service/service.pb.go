@@ -9,7 +9,6 @@ package service
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	unsafe "unsafe"
 )
@@ -25,22 +24,28 @@ var File_service_proto protoreflect.FileDescriptor
 
 const file_service_proto_rawDesc = "" +
 	"\n" +
-	"\rservice.proto\x12\aservice\x1a\x1bgoogle/protobuf/empty.proto\x1a\rmessage.proto2\x89\x01\n" +
-	"\aService\x12:\n" +
-	"\x0eProcessMessage\x12\x10.message.Message\x1a\x16.google.protobuf.Empty\x12B\n" +
-	"\x14ProcessMessageStream\x12\x10.message.Message\x1a\x16.google.protobuf.Empty(\x01B\vZ\t./serviceb\beditionsp\xe9\a"
+	"\rservice.proto\x12\aservice\x1a\rmessage.proto2\x99\x02\n" +
+	"\aService\x124\n" +
+	"\x0eProcessMessage\x12\x10.message.Message\x1a\x10.message.Message\x12D\n" +
+	"\x1bProcessMessageRequestStream\x12\x10.message.Message\x1a\x11.message.Messages(\x01\x12E\n" +
+	"\x1cProcessMessageResponseStream\x12\x11.message.Messages\x1a\x10.message.Message0\x01\x12K\n" +
+	"!ProcessMessageBidirectionalStream\x12\x10.message.Message\x1a\x10.message.Message(\x010\x01B\vZ\t./serviceb\beditionsp\xe9\a"
 
 var file_service_proto_goTypes = []any{
-	(*Message)(nil),       // 0: message.Message
-	(*emptypb.Empty)(nil), // 1: google.protobuf.Empty
+	(*Message)(nil),  // 0: message.Message
+	(*Messages)(nil), // 1: message.Messages
 }
 var file_service_proto_depIdxs = []int32{
 	0, // 0: service.Service.ProcessMessage:input_type -> message.Message
-	0, // 1: service.Service.ProcessMessageStream:input_type -> message.Message
-	1, // 2: service.Service.ProcessMessage:output_type -> google.protobuf.Empty
-	1, // 3: service.Service.ProcessMessageStream:output_type -> google.protobuf.Empty
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
+	0, // 1: service.Service.ProcessMessageRequestStream:input_type -> message.Message
+	1, // 2: service.Service.ProcessMessageResponseStream:input_type -> message.Messages
+	0, // 3: service.Service.ProcessMessageBidirectionalStream:input_type -> message.Message
+	0, // 4: service.Service.ProcessMessage:output_type -> message.Message
+	1, // 5: service.Service.ProcessMessageRequestStream:output_type -> message.Messages
+	0, // 6: service.Service.ProcessMessageResponseStream:output_type -> message.Message
+	0, // 7: service.Service.ProcessMessageBidirectionalStream:output_type -> message.Message
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name

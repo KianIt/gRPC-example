@@ -11,7 +11,7 @@ message Message {
   // ID сообщения.
   int32 id = 1;
   // Тип сообщения.
-  MessageType type = 2 [default = MESSAGE_TYPE_INFO];
+  MessageType type = 2 [default = MESSAGE_TYPE_RESPONSE];
   // Заголовок сообщения.
   string title = 3 [default = "no title"];
   // Теги сообщения.
@@ -29,9 +29,15 @@ message Message {
   google.protobuf.Timestamp sent_at = 8;
 }
 
+// Messages - список сообщений.
+message Messages {
+  // Сообщения.
+  repeated Message messages = 1;
+}
+
 // MessageType - тип сообщения.
 enum MessageType {
-  MESSAGE_TYPE_UNSPECIFIED = 0;                       // Тип не задан.
-  MESSAGE_TYPE_ALERT = 1;                             // Предупреждающее сообщение.
-  MESSAGE_TYPE_INFO = 2;                              // Информационное сообщение.
+  MESSAGE_TYPE_UNSPECIFIED = 0; // Тип не задан.
+  MESSAGE_TYPE_REQUEST = 1;     // Запрос.
+  MESSAGE_TYPE_RESPONSE = 2;    // Ответ.
 }

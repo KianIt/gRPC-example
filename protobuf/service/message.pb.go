@@ -26,21 +26,21 @@ type MessageType int32
 
 const (
 	MessageType_MESSAGE_TYPE_UNSPECIFIED MessageType = 0 // Тип не задан.
-	MessageType_MESSAGE_TYPE_ALERT       MessageType = 1 // Предупреждающее сообщение.
-	MessageType_MESSAGE_TYPE_INFO        MessageType = 2 // Информационное сообщение.
+	MessageType_MESSAGE_TYPE_REQUEST     MessageType = 1 // Запрос.
+	MessageType_MESSAGE_TYPE_RESPONSE    MessageType = 2 // Ответ.
 )
 
 // Enum value maps for MessageType.
 var (
 	MessageType_name = map[int32]string{
 		0: "MESSAGE_TYPE_UNSPECIFIED",
-		1: "MESSAGE_TYPE_ALERT",
-		2: "MESSAGE_TYPE_INFO",
+		1: "MESSAGE_TYPE_REQUEST",
+		2: "MESSAGE_TYPE_RESPONSE",
 	}
 	MessageType_value = map[string]int32{
 		"MESSAGE_TYPE_UNSPECIFIED": 0,
-		"MESSAGE_TYPE_ALERT":       1,
-		"MESSAGE_TYPE_INFO":        2,
+		"MESSAGE_TYPE_REQUEST":     1,
+		"MESSAGE_TYPE_RESPONSE":    2,
 	}
 )
 
@@ -84,7 +84,7 @@ type Message struct {
 
 // Default values for Message fields.
 const (
-	Default_Message_Type  = MessageType_MESSAGE_TYPE_INFO
+	Default_Message_Type  = MessageType_MESSAGE_TYPE_RESPONSE
 	Default_Message_Title = string("no title")
 )
 
@@ -417,14 +417,75 @@ func (*message_IsLast) isMessage_End() {}
 
 func (*message_CountMore) isMessage_End() {}
 
+// Messages - список сообщений.
+type Messages struct {
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Messages *[]*Message            `protobuf:"bytes,1,rep,name=messages"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *Messages) Reset() {
+	*x = Messages{}
+	mi := &file_message_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Messages) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Messages) ProtoMessage() {}
+
+func (x *Messages) ProtoReflect() protoreflect.Message {
+	mi := &file_message_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *Messages) GetMessages() []*Message {
+	if x != nil {
+		if x.xxx_hidden_Messages != nil {
+			return *x.xxx_hidden_Messages
+		}
+	}
+	return nil
+}
+
+func (x *Messages) SetMessages(v []*Message) {
+	x.xxx_hidden_Messages = &v
+}
+
+type Messages_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Сообщения.
+	Messages []*Message
+}
+
+func (b0 Messages_builder) Build() *Messages {
+	m0 := &Messages{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Messages = &b.Messages
+	return m0
+}
+
 var File_message_proto protoreflect.FileDescriptor
 
 const file_message_proto_rawDesc = "" +
 	"\n" +
-	"\rmessage.proto\x12\amessage\x1a\x1fgoogle/protobuf/timestamp.proto\"\x96\x02\n" +
+	"\rmessage.proto\x12\amessage\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9a\x02\n" +
 	"\aMessage\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x05R\x02id\x12;\n" +
-	"\x04type\x18\x02 \x01(\x0e2\x14.message.MessageType:\x11MESSAGE_TYPE_INFOR\x04type\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\x05R\x02id\x12?\n" +
+	"\x04type\x18\x02 \x01(\x0e2\x14.message.MessageType:\x15MESSAGE_TYPE_RESPONSER\x04type\x12\x1e\n" +
 	"\x05title\x18\x03 \x01(\t:\bno titleR\x05title\x12\x12\n" +
 	"\x04tags\x18\x04 \x03(\tR\x04tags\x12\x12\n" +
 	"\x04data\x18\x05 \x01(\fR\x04data\x12\x19\n" +
@@ -432,27 +493,31 @@ const file_message_proto_rawDesc = "" +
 	"\n" +
 	"count_more\x18\a \x01(\x05H\x00R\tcountMore\x123\n" +
 	"\asent_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x06sentAtB\x05\n" +
-	"\x03end*Z\n" +
+	"\x03end\"8\n" +
+	"\bMessages\x12,\n" +
+	"\bmessages\x18\x01 \x03(\v2\x10.message.MessageR\bmessages*`\n" +
 	"\vMessageType\x12\x1c\n" +
-	"\x18MESSAGE_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
-	"\x12MESSAGE_TYPE_ALERT\x10\x01\x12\x15\n" +
-	"\x11MESSAGE_TYPE_INFO\x10\x02B\vZ\t./serviceb\beditionsp\xe9\a"
+	"\x18MESSAGE_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14MESSAGE_TYPE_REQUEST\x10\x01\x12\x19\n" +
+	"\x15MESSAGE_TYPE_RESPONSE\x10\x02B\vZ\t./serviceb\beditionsp\xe9\a"
 
 var file_message_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_message_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_message_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_message_proto_goTypes = []any{
 	(MessageType)(0),              // 0: message.MessageType
 	(*Message)(nil),               // 1: message.Message
-	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
+	(*Messages)(nil),              // 2: message.Messages
+	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_message_proto_depIdxs = []int32{
 	0, // 0: message.Message.type:type_name -> message.MessageType
-	2, // 1: message.Message.sent_at:type_name -> google.protobuf.Timestamp
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	3, // 1: message.Message.sent_at:type_name -> google.protobuf.Timestamp
+	1, // 2: message.Messages.messages:type_name -> message.Message
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_message_proto_init() }
@@ -470,7 +535,7 @@ func file_message_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_message_proto_rawDesc), len(file_message_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

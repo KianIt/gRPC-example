@@ -2,15 +2,18 @@ edition = "2024";
 
 package service;
 
-import "google/protobuf/empty.proto";
 import "message.proto";
 
 option go_package = "./service";
 
 // Service - сервис обработки сообщений.
 service Service {
-  // ProcessMessage обрабатывает сообщение.
-  rpc ProcessMessage(message.Message) returns (google.protobuf.Empty);
-  // ProcessMessageStream обрабатывает поток сообщений.
-  rpc ProcessMessageStream(stream message.Message) returns (google.protobuf.Empty);
+  // ProcessMessage получает сообщение, возвращает сообщение.
+  rpc ProcessMessage(message.Message) returns (message.Message);
+  // ProcessMessageRequestStream получает поток сообщений, возвращает список сообщений.
+  rpc ProcessMessageRequestStream(stream message.Message) returns (message.Messages);
+  // ProcessMessageResponseStream получает список сообщений, возвращает поток сообщений.
+  rpc ProcessMessageResponseStream(message.Messages) returns (stream message.Message);
+  // ProcessMessageBidirectionalStream получает поток сообщений, возвращает поток сообщений.
+  rpc ProcessMessageBidirectionalStream(stream message.Message) returns (stream message.Message);
 }

@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,8 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Service_ProcessMessage_FullMethodName       = "/service.Service/ProcessMessage"
-	Service_ProcessMessageStream_FullMethodName = "/service.Service/ProcessMessageStream"
+	Service_ProcessMessage_FullMethodName                    = "/service.Service/ProcessMessage"
+	Service_ProcessMessageRequestStream_FullMethodName       = "/service.Service/ProcessMessageRequestStream"
+	Service_ProcessMessageResponseStream_FullMethodName      = "/service.Service/ProcessMessageResponseStream"
+	Service_ProcessMessageBidirectionalStream_FullMethodName = "/service.Service/ProcessMessageBidirectionalStream"
 )
 
 // ServiceClient is the client API for Service service.
@@ -30,10 +31,14 @@ const (
 //
 // Service - сервис обработки сообщений.
 type ServiceClient interface {
-	// ProcessMessage обрабатывает сообщение.
-	ProcessMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// ProcessMessageStream обрабатывает поток сообщений.
-	ProcessMessageStream(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[Message, emptypb.Empty], error)
+	// ProcessMessage получает сообщение, возвращает сообщение.
+	ProcessMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Message, error)
+	// ProcessMessageRequestStream получает поток сообщений, возвращает список сообщений.
+	ProcessMessageRequestStream(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[Message, Messages], error)
+	// ProcessMessageResponseStream получает список сообщений, возвращает поток сообщений.
+	ProcessMessageResponseStream(ctx context.Context, in *Messages, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Message], error)
+	// ProcessMessageBidirectionalStream получает поток сообщений, возвращает поток сообщений.
+	ProcessMessageBidirectionalStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Message, Message], error)
 }
 
 type serviceClient struct {
@@ -44,9 +49,9 @@ func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 	return &serviceClient{cc}
 }
 
-func (c *serviceClient) ProcessMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *serviceClient) ProcessMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Message, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
+	out := new(Message)
 	err := c.cc.Invoke(ctx, Service_ProcessMessage_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -54,18 +59,50 @@ func (c *serviceClient) ProcessMessage(ctx context.Context, in *Message, opts ..
 	return out, nil
 }
 
-func (c *serviceClient) ProcessMessageStream(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[Message, emptypb.Empty], error) {
+func (c *serviceClient) ProcessMessageRequestStream(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[Message, Messages], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Service_ServiceDesc.Streams[0], Service_ProcessMessageStream_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Service_ServiceDesc.Streams[0], Service_ProcessMessageRequestStream_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[Message, emptypb.Empty]{ClientStream: stream}
+	x := &grpc.GenericClientStream[Message, Messages]{ClientStream: stream}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Service_ProcessMessageStreamClient = grpc.ClientStreamingClient[Message, emptypb.Empty]
+type Service_ProcessMessageRequestStreamClient = grpc.ClientStreamingClient[Message, Messages]
+
+func (c *serviceClient) ProcessMessageResponseStream(ctx context.Context, in *Messages, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Message], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &Service_ServiceDesc.Streams[1], Service_ProcessMessageResponseStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[Messages, Message]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Service_ProcessMessageResponseStreamClient = grpc.ServerStreamingClient[Message]
+
+func (c *serviceClient) ProcessMessageBidirectionalStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Message, Message], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &Service_ServiceDesc.Streams[2], Service_ProcessMessageBidirectionalStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[Message, Message]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Service_ProcessMessageBidirectionalStreamClient = grpc.BidiStreamingClient[Message, Message]
 
 // ServiceServer is the server API for Service service.
 // All implementations must embed UnimplementedServiceServer
@@ -73,10 +110,14 @@ type Service_ProcessMessageStreamClient = grpc.ClientStreamingClient[Message, em
 //
 // Service - сервис обработки сообщений.
 type ServiceServer interface {
-	// ProcessMessage обрабатывает сообщение.
-	ProcessMessage(context.Context, *Message) (*emptypb.Empty, error)
-	// ProcessMessageStream обрабатывает поток сообщений.
-	ProcessMessageStream(grpc.ClientStreamingServer[Message, emptypb.Empty]) error
+	// ProcessMessage получает сообщение, возвращает сообщение.
+	ProcessMessage(context.Context, *Message) (*Message, error)
+	// ProcessMessageRequestStream получает поток сообщений, возвращает список сообщений.
+	ProcessMessageRequestStream(grpc.ClientStreamingServer[Message, Messages]) error
+	// ProcessMessageResponseStream получает список сообщений, возвращает поток сообщений.
+	ProcessMessageResponseStream(*Messages, grpc.ServerStreamingServer[Message]) error
+	// ProcessMessageBidirectionalStream получает поток сообщений, возвращает поток сообщений.
+	ProcessMessageBidirectionalStream(grpc.BidiStreamingServer[Message, Message]) error
 	mustEmbedUnimplementedServiceServer()
 }
 
@@ -87,11 +128,17 @@ type ServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedServiceServer struct{}
 
-func (UnimplementedServiceServer) ProcessMessage(context.Context, *Message) (*emptypb.Empty, error) {
+func (UnimplementedServiceServer) ProcessMessage(context.Context, *Message) (*Message, error) {
 	return nil, status.Error(codes.Unimplemented, "method ProcessMessage not implemented")
 }
-func (UnimplementedServiceServer) ProcessMessageStream(grpc.ClientStreamingServer[Message, emptypb.Empty]) error {
-	return status.Error(codes.Unimplemented, "method ProcessMessageStream not implemented")
+func (UnimplementedServiceServer) ProcessMessageRequestStream(grpc.ClientStreamingServer[Message, Messages]) error {
+	return status.Error(codes.Unimplemented, "method ProcessMessageRequestStream not implemented")
+}
+func (UnimplementedServiceServer) ProcessMessageResponseStream(*Messages, grpc.ServerStreamingServer[Message]) error {
+	return status.Error(codes.Unimplemented, "method ProcessMessageResponseStream not implemented")
+}
+func (UnimplementedServiceServer) ProcessMessageBidirectionalStream(grpc.BidiStreamingServer[Message, Message]) error {
+	return status.Error(codes.Unimplemented, "method ProcessMessageBidirectionalStream not implemented")
 }
 func (UnimplementedServiceServer) mustEmbedUnimplementedServiceServer() {}
 func (UnimplementedServiceServer) testEmbeddedByValue()                 {}
@@ -132,12 +179,30 @@ func _Service_ProcessMessage_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_ProcessMessageStream_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(ServiceServer).ProcessMessageStream(&grpc.GenericServerStream[Message, emptypb.Empty]{ServerStream: stream})
+func _Service_ProcessMessageRequestStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ServiceServer).ProcessMessageRequestStream(&grpc.GenericServerStream[Message, Messages]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Service_ProcessMessageStreamServer = grpc.ClientStreamingServer[Message, emptypb.Empty]
+type Service_ProcessMessageRequestStreamServer = grpc.ClientStreamingServer[Message, Messages]
+
+func _Service_ProcessMessageResponseStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(Messages)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ServiceServer).ProcessMessageResponseStream(m, &grpc.GenericServerStream[Messages, Message]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Service_ProcessMessageResponseStreamServer = grpc.ServerStreamingServer[Message]
+
+func _Service_ProcessMessageBidirectionalStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ServiceServer).ProcessMessageBidirectionalStream(&grpc.GenericServerStream[Message, Message]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Service_ProcessMessageBidirectionalStreamServer = grpc.BidiStreamingServer[Message, Message]
 
 // Service_ServiceDesc is the grpc.ServiceDesc for Service service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -153,8 +218,19 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "ProcessMessageStream",
-			Handler:       _Service_ProcessMessageStream_Handler,
+			StreamName:    "ProcessMessageRequestStream",
+			Handler:       _Service_ProcessMessageRequestStream_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "ProcessMessageResponseStream",
+			Handler:       _Service_ProcessMessageResponseStream_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ProcessMessageBidirectionalStream",
+			Handler:       _Service_ProcessMessageBidirectionalStream_Handler,
+			ServerStreams: true,
 			ClientStreams: true,
 		},
 	},
